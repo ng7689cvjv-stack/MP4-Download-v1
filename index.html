@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link to MP4 - YouTube & Twitter Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #fbfbfd;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 
+                        0 8px 24px rgba(0, 0, 0, 0.06);
+            padding: 0;
+            max-width: 560px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 40px 48px 32px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            font-size: 28px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: -0.6px;
+        }
+
+        .subtitle {
+            color: #86868b;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: -0.1px;
+        }
+
+        .content {
+            padding: 32px 48px 40px;
+        }
+
+        .platform-tags {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .platform-tag {
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            background: #f5f5f7;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1d1d1f;
+            font-weight: 500;
+            font-size: 13px;
+            letter-spacing: -0.08px;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fbfbfd;
+            letter-spacing: -0.2px;
+        }
+
+        input[type="url"]::placeholder {
+            color: #86868b;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: rgba(0, 0, 0, 0.25);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 125, 250, 0.08);
+        }
+
+        .quality-selector {
+            margin-bottom: 28px;
+        }
+
+        .quality-options {
+            display: flex;
+            gap: 0;
+            background: #f5f5f7;
+            padding: 2px;
+            border-radius: 10px;
+        }
+
+        .quality-option {
+            flex: 1;
+        }
+
+        .quality-option input[type="radio"] {
+            display: none;
+        }
+
+        .quality-option label {
+            display: block;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            margin: 0;
+            font-size: 13px;
+            color: #1d1d1f;
+            letter-spacing: -0.08px;
+        }
+
+        .quality-option input[type="radio"]:checked + label {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+                        0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .quality-option label:hover {
+            opacity: 0.8;
+        }
+
+        .quality-option:first-child label {
+            border-radius: 8px 8px 8px 8px;
+        }
+
+        .quality-option:last-child label {
+            border-radius: 8px 8px 8px 8px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 0;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: -0.2px;
+        }
+
+        .btn-primary {
+            flex: 2;
+            background: #007aff;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0051d5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e8e8ed;
+        }
+
+        .btn-secondary:active:not(:disabled) {
+            background: #d2d2d7;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 32px 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-top: 2px solid #007aff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        .loading p {
+            font-size: 13px;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: -0.08px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            margin-top: 24px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+            letter-spacing: -0.08px;
+            line-height: 1.5;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .status.error {
+            background: #fff0f0;
+            color: #c41e3a;
+            border: 1px solid rgba(196, 30, 58, 0.2);
+        }
+
+        .status.success {
+            background: #f0f9f4;
+            color: #1e8e3e;
+            border: 1px solid rgba(30, 142, 62, 0.2);
+        }
+
+        .status.info {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card {
+            margin-top: 32px;
+            background: #fbfbfd;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .result-card.active {
+            display: block;
+        }
+
+        .video-preview {
+            margin-bottom: 16px;
+        }
+
+        .video-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
+        }
+
+        .video-meta {
+            font-size: 12px;
+            color: #86868b;
+            letter-spacing: -0.08px;
+        }
+
+        .download-section {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .download-btn {
+            padding: 12px 20px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            letter-spacing: -0.2px;
+        }
+
+        .download-btn:hover {
+            background: #0051d5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 32px 24px 24px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            .platform-tags {
+                gap: 6px;
+            }
+
+            .platform-tag {
+                font-size: 10px;
+                padding: 5px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Link to MP4</h1>
+            <p class="subtitle">Download videos from YouTube, Twitter, and more</p>
+        </div>
+
+        <div class="content">
+            <div class="platform-tags">
+                <span class="platform-tag">YouTube</span>
+                <span class="platform-tag">Twitter</span>
+                <span class="platform-tag">Instagram</span>
+                <span class="platform-tag">TikTok</span>
+            </div>
+
+            <div class="input-group">
+                <label for="url-input">Video URL</label>
+                <input 
+                    type="url" 
+                    id="url-input" 
+                    placeholder="https://youtube.com/watch?v=..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="quality-selector">
+                <label>Quality</label>
+                <div class="quality-options">
+                    <div class="quality-option">
+                        <input type="radio" id="quality-max" name="quality" value="max" checked>
+                        <label for="quality-max">Best</label>
+                    </div>
+                    <div class="quality-option">
+                        <input type="radio" id="quality-720" name="quality" value="720">
+                        <label for="quality-720">720p</label>
+                    </div>
+                    <div class="quality-option">
+                        <input type="radio" id="quality-480" name="quality" value="480">
+                        <label for="quality-480">480p</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="download-btn">Download</button>
+                <button class="btn-secondary" id="clear-btn">Clear</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing video...</p>
+            </div>
+
+            <div class="status" id="status"></div>
+
+            <div class="result-card" id="result-card">
+                <div class="video-preview" id="video-preview"></div>
+                <div class="download-section" id="download-section"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('url-input');
+        const downloadBtn = document.getElementById('download-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const loading = document.getElementById('loading');
+        const status = document.getElementById('status');
+        const resultCard = document.getElementById('result-card');
+        const videoPreview = document.getElementById('video-preview');
+        const downloadSection = document.getElementById('download-section');
+
+        // Cobalt API endpoint
+        const COBALT_API = 'https://api.cobalt.tools/api/json';
+
+        downloadBtn.addEventListener('click', processVideo);
+        clearBtn.addEventListener('click', clearResults);
+        
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') processVideo();
+        });
+
+        async function processVideo() {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showStatus('Please enter a video URL', 'error');
+                return;
+            }
+
+            if (!isValidUrl(url)) {
+                showStatus('Please enter a valid URL', 'error');
+                return;
+            }
+
+            const quality = document.querySelector('input[name="quality"]:checked').value;
+
+            loading.classList.add('active');
+            status.classList.remove('active');
+            resultCard.classList.remove('active');
+            downloadBtn.disabled = true;
+
+            try {
+                const response = await fetch(COBALT_API, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        videoQuality: quality,
+                        filenameStyle: 'classic',
+                        downloadMode: 'auto'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'error' || data.status === 'rate-limit') {
+                    showStatus(data.text || 'Error processing video. Please try again.', 'error');
+                    return;
+                }
+
+                if (data.status === 'redirect' || data.status === 'tunnel') {
+                    // Single video file
+                    displayResult({
+                        url: data.url,
+                        filename: extractFilename(url, data.url)
+                    });
+                    showStatus('Video ready for download!', 'success');
+                } else if (data.status === 'picker') {
+                    // Multiple video options (e.g., Twitter with multiple videos)
+                    displayMultipleResults(data.picker);
+                    showStatus('Multiple videos found!', 'success');
+                } else {
+                    showStatus('Unexpected response. Please try a different URL.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Failed to process video. Please check the URL and try again.', 'error');
+            } finally {
+                loading.classList.remove('active');
+                downloadBtn.disabled = false;
+            }
+        }
+
+        function displayResult(video) {
+            videoPreview.innerHTML = `
+                <div class="video-title">Video ready!</div>
+                <div class="video-meta">Click download to save the video</div>
+            `;
+
+            downloadSection.innerHTML = `
+                <a href="${video.url}" class="download-btn" download="${video.filename}" target="_blank">
+                    Download Video
+                </a>
+            `;
+
+            resultCard.classList.add('active');
+        }
+
+        function displayMultipleResults(picker) {
+            videoPreview.innerHTML = `
+                <div class="video-title">Multiple videos found</div>
+                <div class="video-meta">Choose which video to download</div>
+            `;
+
+            downloadSection.innerHTML = picker.map((item, index) => `
+                <a href="${item.url}" class="download-btn" download="video_${index + 1}.mp4" target="_blank">
+                    Video ${index + 1}
+                </a>
+            `).join('');
+
+            resultCard.classList.add('active');
+        }
+
+        function extractFilename(originalUrl, downloadUrl) {
+            try {
+                // Try to get a meaningful filename from the original URL
+                if (originalUrl.includes('youtube.com') || originalUrl.includes('youtu.be')) {
+                    const videoId = extractYouTubeId(originalUrl);
+                    return videoId ? `youtube_${videoId}.mp4` : 'video.mp4';
+                }
+                
+                if (originalUrl.includes('twitter.com') || originalUrl.includes('x.com')) {
+                    const match = originalUrl.match(/status\/(\d+)/);
+                    return match ? `twitter_${match[1]}.mp4` : 'video.mp4';
+                }
+
+                // Fall back to filename from download URL
+                const urlPath = new URL(downloadUrl).pathname;
+                const filename = urlPath.split('/').pop();
+                return filename || 'video.mp4';
+            } catch {
+                return 'video.mp4';
+            }
+        }
+
+        function extractYouTubeId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+                /youtube\.com\/shorts\/([^&\n?#]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        function clearResults() {
+            urlInput.value = '';
+            resultCard.classList.remove('active');
+            status.classList.remove('active');
+            urlInput.focus();
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status active ${type}`;
+        }
+
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+
+        // Focus input on load
+        urlInput.focus();
+    </script>
+</body>
+</html>
