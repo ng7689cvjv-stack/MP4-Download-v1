@@ -60,24 +60,7 @@
             padding: 32px 48px 40px;
         }
 
-        .platform-tags {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
 
-        .platform-tag {
-            font-size: 11px;
-            color: #86868b;
-            font-weight: 500;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
-            background: #f5f5f7;
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
 
         .input-group {
             margin-bottom: 24px;
@@ -158,14 +141,6 @@
 
         .quality-option label:hover {
             opacity: 0.8;
-        }
-
-        .quality-option:first-child label {
-            border-radius: 8px 8px 8px 8px;
-        }
-
-        .quality-option:last-child label {
-            border-radius: 8px 8px 8px 8px;
         }
 
         .button-group {
@@ -367,15 +342,6 @@
             .subtitle {
                 font-size: 13px;
             }
-
-            .platform-tags {
-                gap: 6px;
-            }
-
-            .platform-tag {
-                font-size: 10px;
-                padding: 5px 10px;
-            }
         }
     </style>
 </head>
@@ -387,13 +353,6 @@
         </div>
 
         <div class="content">
-            <div class="platform-tags">
-                <span class="platform-tag">YouTube</span>
-                <span class="platform-tag">Twitter</span>
-                <span class="platform-tag">Instagram</span>
-                <span class="platform-tag">TikTok</span>
-            </div>
-
             <div class="input-group">
                 <label for="url-input">Video URL</label>
                 <input 
@@ -451,7 +410,7 @@
         const videoPreview = document.getElementById('video-preview');
         const downloadSection = document.getElementById('download-section');
 
-        // Cobalt API endpoint
+        // Using cobalt.tools API with proper error handling
         const COBALT_API = 'https://api.cobalt.tools/api/json';
 
         downloadBtn.addEventListener('click', processVideo);
@@ -490,16 +449,20 @@
                     },
                     body: JSON.stringify({
                         url: url,
-                        videoQuality: quality,
-                        filenameStyle: 'classic',
-                        downloadMode: 'auto'
+                        videoQuality: quality
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
+                console.log('API Response:', data); // Debug log
 
                 if (data.status === 'error' || data.status === 'rate-limit') {
-                    showStatus(data.text || 'Error processing video. Please try again.', 'error');
+                    const errorMsg = data.text || data.error?.code || 'Error processing video. Please try again.';
+                    showStatus(errorMsg, 'error');
                     return;
                 }
 
@@ -515,12 +478,18 @@
                     displayMultipleResults(data.picker);
                     showStatus('Multiple videos found!', 'success');
                 } else {
-                    showStatus('Unexpected response. Please try a different URL.', 'error');
+                    showStatus('Unexpected response from server. The video may not be available or supported.', 'error');
                 }
 
             } catch (error) {
                 console.error('Error:', error);
-                showStatus('Failed to process video. Please check the URL and try again.', 'error');
+                if (error.message.includes('403') || error.message.includes('401')) {
+                    showStatus('Access denied. The API may require authentication. Try using cobalt.tools website directly.', 'error');
+                } else if (error.message.includes('429')) {
+                    showStatus('Rate limit exceeded. Please wait a moment and try again.', 'error');
+                } else {
+                    showStatus('Failed to connect to download service. Please try again or use cobalt.tools website directly.', 'error');
+                }
             } finally {
                 loading.classList.remove('active');
                 downloadBtn.disabled = false;
@@ -534,7 +503,7 @@
             `;
 
             downloadSection.innerHTML = `
-                <a href="${video.url}" class="download-btn" download="${video.filename}" target="_blank">
+                <a href="${escapeHtml(video.url)}" class="download-btn" download="${escapeHtml(video.filename)}" target="_blank">
                     Download Video
                 </a>
             `;
@@ -549,7 +518,7 @@
             `;
 
             downloadSection.innerHTML = picker.map((item, index) => `
-                <a href="${item.url}" class="download-btn" download="video_${index + 1}.mp4" target="_blank">
+                <a href="${escapeHtml(item.url)}" class="download-btn" download="video_${index + 1}.mp4" target="_blank">
                     Video ${index + 1}
                 </a>
             `).join('');
@@ -611,6 +580,12 @@
             } catch {
                 return false;
             }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Focus input on load
